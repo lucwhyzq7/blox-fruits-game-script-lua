@@ -1,0 +1,90 @@
+-- Interface de Auto-Aim
+local autoAimGui = Instance.new("ScreenGui")
+local mainFrame = Instance.new("Frame")
+local UICorner = Instance.new("UICorner")
+local ToggleButton = Instance.new("TextButton")
+local UICorner_2 = Instance.new("UICorner")
+local Close = Instance.new("TextButton")
+local UICorner_3 = Instance.new("UICorner")
+
+-- Propriedades
+autoAimGui.Name = "autoAimGui"
+autoAimGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+autoAimGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+autoAimGui.ResetOnSpawn = false
+
+mainFrame.Name = "mainFrame"
+mainFrame.Parent = autoAimGui
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+mainFrame.Position = UDim2.new(0.4, 0, 0.3, 0)
+mainFrame.Size = UDim2.new(0, 300, 0, 150)
+
+UICorner.Parent = mainFrame
+
+ToggleButton.Name = "ToggleButton"
+ToggleButton.Parent = mainFrame
+ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.Position = UDim2.new(0.1, 0, 0.3, 0)
+ToggleButton.Size = UDim2.new(0, 200, 0, 50)
+ToggleButton.Font = Enum.Font.SourceSansBold
+ToggleButton.Text = "Toggle Auto-Aim"
+ToggleButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+ToggleButton.TextScaled = true
+ToggleButton.TextSize = 14.000
+ToggleButton.TextWrapped = true
+
+UICorner_2.Parent = ToggleButton
+
+Close.Name = "Close"
+Close.Parent = mainFrame
+Close.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Close.Position = UDim2.new(0.9, 0, 0.1, 0)
+Close.Size = UDim2.new(0, 20, 0, 20)
+Close.Font = Enum.Font.SourceSansBold
+Close.Text = "X"
+Close.TextColor3 = Color3.fromRGB(0, 0, 0)
+Close.TextScaled = true
+Close.TextSize = 14.000
+Close.TextWrapped = true
+
+UICorner_3.Parent = Close
+
+-- Scripts
+
+local isEnabled = false
+
+local function autoAim()
+    if not isEnabled then return end
+    local player = game.Players.LocalPlayer
+    local mouse = player:GetMouse()
+    local target = nil
+
+    for _, v in pairs(game.Players:GetPlayers()) do
+        if v ~= player and v.Character and v.Character:FindFirstChild("Head") then
+            local head = v.Character.Head
+            local screenPoint = workspace.CurrentCamera:WorldToScreenPoint(head.Position)
+            local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - Vector2.new(mouse.X, mouse.Y)).magnitude
+            
+            if not target or distance < target.distance then
+                target = {distance = distance, head = head}
+            end
+        end
+    end
+
+    if target then
+        mouse.Hit = target.head.CFrame
+    end
+end
+
+ToggleButton.MouseButton1Click:Connect(function()
+    isEnabled = not isEnabled
+    ToggleButton.Text = isEnabled and "Auto-Aim: ON" or "Auto-Aim: OFF"
+    
+    if isEnabled then
+        game:GetService("RunService").RenderStepped:Connect(autoAim)
+    end
+end)
+
+Close.MouseButton1Click:Connect(function()
+    mainFrame.Visible = false
+end)
