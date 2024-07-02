@@ -1,4 +1,4 @@
--- Interface de Auto-Aim
+-- Interface de Auto-Aimlk
 local autoAimGui = Instance.new("ScreenGui")
 local mainFrame = Instance.new("Frame")
 local UICorner = Instance.new("UICorner")
